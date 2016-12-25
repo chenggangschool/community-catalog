@@ -1,16 +1,55 @@
+Skip to content
+This repository
+Search
+Pull requests
+Issues
+Gist
+ @chenggangschool
+ Watch 1
+  Star 0
+ Fork 0 niusmallnan/hna-app-catalog
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Pulse  Graphs
+Branch: master Find file Copy pathhna-app-catalog/templates/wordpress/0/rancher-compose.yml
+bb4d19f  4 days ago
+@niusmallnan niusmallnan update
+1 contributor
+RawBlameHistory     
+39 lines (36 sloc)  851 Bytes
 .catalog:
   name: "Wordpress"
-  version: "v0.1-educaas1"
+  version: "v0.1"
   description: "Blog tool, publishing platform and CMS"
-  uuid: Wordpress-0
-  minimum_rancher_version: v0.51.0
-  questions:    
-    - variable: public_port
-      description: "public port to access the wordpress site"
-      label: "Public Port"
-      required: true
-      default: "80"
-      type: "int"
+  minimum_rancher_version: v1.2.0
+  questions:
+  - variable: "fqdn"
+    label: "LB FQDN"
+    description: "App name for FQDN"
+    type: "string"
+    required: true
+    default: "wordpress"
+  - variable: "lb_source_port"
+    label: "LB Source Port"
+    description: "Source port for GLB"
+    type: "string"
+    required: true
+    default: "8082"
 
 
-wordpress:
+wordpress-lb:
+    scale: 1
+    start_on_create: true
+    lb_config:
+      certs: []
+      port_rules:
+      - hostname: ${fqdn}
+        priority: 1
+        protocol: http
+        service: wordpress
+        source_port: ${lb_source_port}
+        target_port: 80
+    health_check:
+      response_timeout: 2000
+      healthy_threshold: 2
+      port: 42
+      unhealthy_threshold: 3
+      interval: 2000
